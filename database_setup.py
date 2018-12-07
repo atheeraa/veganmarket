@@ -18,8 +18,9 @@ class Department(Base):
     def serialize(self):
         """Return object data in easily serializeable format"""
         return {
+             'id': self.id,
             'name': self.name,
-            'id': self.id,
+            'image': self.image,
         }
 
 
@@ -37,10 +38,10 @@ class Item(Base):
     def serialize(self):
         """Return object data in easily serializeable format"""
         return {
+            'id': self.id,
             'name': self.name,
             'description': self.description,
-            'id': self.id,
-            'course': self.course,
+            'price':self.price,
         }
 
 

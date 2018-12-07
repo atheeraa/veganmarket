@@ -119,7 +119,7 @@ def gconnect():
 
 
 # JSON APIs to view a department Information
-@app.route('/departments/<int:department>/items/JSON')
+@app.route('/departments/<int:department_id>/items/JSON')
 def departmentJSON(department_id):
     department = session.query(Department).filter_by(id=department_id).one()
     items = session.query(Item).filter_by(
@@ -127,13 +127,13 @@ def departmentJSON(department_id):
     return jsonify(Item=[i.serialize for i in items])
 
 #JSON for item
-@app.route('/departments/<int:department>/items/<int:item_id>/JSON')
+@app.route('/departments/<int:department_id>/items/<int:item_id>/JSON')
 def itemsJSON(department_id, item_id):
     item = session.query(Item).filter_by(id=item_id).one()
     return jsonify(item=item.serialize)
 
 #JSON for all departments 
-@app.route('/department/JSON')
+@app.route('/departments/JSON')
 def departmentsJSON():
     departments = session.query(Department).all()
     return jsonify(departments=[r.serialize for r in departments])

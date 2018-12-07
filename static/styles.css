@@ -24,6 +24,11 @@ a {text-decoration: none; color:#FFFFCC; font-size: .75em;}
     opacity: 1;
     left: 50%;
     transform: translate(-50%, -50%); }
+.signinButton{
+  position: absolute;
+  left:80%;
+  top:60%
+}
 
 .price {text-align: right; width:50%; float: right; }
 
