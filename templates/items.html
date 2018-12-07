@@ -1,0 +1,80 @@
+<html>
+
+<head>
+	<link href='https://fonts.googleapis.com/css?family=Poiret One' rel='stylesheet'>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+
+</head>
+
+<body>
+	<img src="{{department.image}}" class="bg">
+	<a href="{{url_for('showDepartments')}}">
+		<img src="{{ url_for('static', filename='back.png') }}" height="80px" width=80px class="back">
+	</a>
+	<div class='header'>
+		<h1>{{ department.name }}</h1>
+		<div class = 'flash'>
+		      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          
+        <ul>
+        {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+
+</div>
+
+	</div>
+	<div class="editing">
+		<a href="{{url_for('editDepartment',department_id = department.id)}}">
+			<img src="/static/edit.png" width="30px" height="30px" style="padding:20px"></a>
+		<a href="{{url_for('deleteDepartment',department_id = department.id)}}">
+			<img src="/static/delete.png" width="30px" height="30px" style="padding:20px"></a>
+	</div>
+	<div class='container'>
+
+		{% with messages = get_flashed_messages() %} {% if messages %}
+
+		<ul>
+			{% for message in messages %}
+			<li> <strong> {{ message }} </strong> </li>
+			{% endfor %}
+		</ul>
+		{% endif %} {% endwith %} {% if items !=[] %}
+
+		</br>
+		</br>
+		<div align=center class="table">
+			<table>
+				<tr>
+					<th>Product</th>
+					<th>Price</th>
+					<th>
+						<a href="{{url_for('newItem', department_id = department.id )}}">
+							<img src="/static/plus2.png" width="30px" height="30px"></a>
+					</th>
+				</tr>
+				{% for i in items %}
+				<tr>
+					<td class="product " width="70%">
+						<p>{{i.name}}</p> {{i.description}}</td>
+					<td class="product ">{{i.price}}</td>
+					<td>
+						<a href="{{url_for('editItem', department_id = department.id ,item_id=i.id )}}">
+							<img src="/static/edit.png" width="20px" height="20px"></a>
+					</td>
+					<td> <a href="{{url_for('deleteItem', department_id = department.id ,item_id=i.id )}}">
+						<img src="/static/delete.png" width="20px" height="20px"></a></td>
+				</tr>
+
+				{% endfor %} {% endif %}
+			</table>
+		</div>
+
+
+</body>
+
+</html>

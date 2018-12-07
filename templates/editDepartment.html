@@ -1,0 +1,36 @@
+<html>
+
+
+<head>
+	<link href='https://fonts.googleapis.com/css?family=Poiret One' rel='stylesheet'>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+	<img src="/static/bg.jpg" class="bg">
+	<a href="{{url_for('showItems', department_id = department.id)}}">
+		<img src="{{ url_for('static', filename='back.png') }}" height="80px" width=80px class="back">
+	</a>
+	<div class='header'>
+		<h1>Edit Department</h1>
+	</div>
+	<div class='container'>
+		<div align=center>
+			<form action="{{ url_for('editDepartment',department_id = department.id)}}" method='post'>
+
+
+				<p class="product">Name:</p>
+				<input type='text' size='30' name='name' placeholder='{{department.name }}'>
+
+				<p class="product">Image Url :</p>
+				<input type='text' size='30' name='image'>
+				<br><br>
+				<input class="product" type='submit' value='Edit'>
+
+
+
+			</form>
+		</div>
+</body>
+
+</html>

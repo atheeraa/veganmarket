@@ -1,0 +1,61 @@
+<html>
+
+<head>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+	<link href='https://fonts.googleapis.com/css?family=Poiret One' rel='stylesheet'>
+</head>
+
+
+<body>
+		<img src="/static/bg.jpg" class="bg">
+	<div class='header'>
+		<h1>VEGAN MARKET</h1>
+
+<div class = 'flash'>
+		      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          
+        <ul>
+        {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+
+</div>
+	
+	</div>
+	<div align=center class='container'>
+	<ul style="list-style-type:none">
+			{% for department in departments %}
+
+			<li>
+				<a href="{{url_for('showItems', department_id = department.id)}}">
+					<img src="{{department.image}}" width="200" height="200" class="image">
+					<div class="middle">
+						<div class="text">{{department.name}}</div>
+					</div>
+				</a>
+			</li>
+
+
+
+			{% endfor %}
+			<li>
+				<a href="{{url_for('newDepartment')}}">
+					<img src="{{ url_for('static', filename='plus.png')}}" width="200" height="200" class="image">
+					<div class="middle">
+						<div class="text">
+							<h3>Create a New Department</h3>
+						</div>
+					</div>
+				</a>
+			</li>
+		</ul>
+	</div>
+
+
+</body>
+
+</html>

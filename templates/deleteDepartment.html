@@ -1,0 +1,30 @@
+<html>
+
+
+<head>
+	<link href='https://fonts.googleapis.com/css?family=Poiret One' rel='stylesheet'>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+
+	<img src="/static/bg.jpg" class="bg">
+	<a href="{{url_for('showItems', department_id = department.id)}}">
+		<img src="{{ url_for('static', filename='back.png') }}" height="80px" width=80px class="back">
+	</a>
+	<div class='header'>
+		<h1> Are you sure you want to delete {{department.name}}? </h1>
+	</div>
+	<div class='container'>
+		<div align=center>
+
+
+			<form action="{{ url_for('deleteDepartment',department_id = department.id)}}" method='post'>
+				<br>
+				<br>
+				<input class="product" type='submit' , value='Delete'>
+
+			</form>
+</body>
+
+</html>

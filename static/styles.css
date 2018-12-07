@@ -1,0 +1,131 @@
+body            { 
+    font-family: sans-serif; background-color:beige; height: 1000px; align-items: center;}
+     
+h1              {color: #5A6C4B; font-family:'Poiret One'; 
+font-size: 3.0em;
+ }
+
+p               {font-size: 1em; font-weight: bold;}
+
+a {text-decoration: none; color:#FFFFCC; font-size: .75em;}
+
+.bg{
+    width:100%;
+  height: 500px;
+  position:inherit;
+   background-repeat: no-repeat;
+  object-fit:  cover;
+  opacity: 0.3;
+  z-index: 0;
+}
+.header {
+  position:absolute; 
+    top: 60%;
+    opacity: 1;
+    left: 50%;
+    transform: translate(-50%, -50%); }
+
+.price {text-align: right; width:50%; float: right; }
+
+.flash          { background: #cee5F5; }
+
+.back {
+    opacity: 0.5;
+  position: absolute;
+  left:10%;
+  top:55%
+}
+.editing{
+  position: absolute;
+  left:80%;
+  top:55%
+}
+.container {
+  border-top: 2px solid #7B9466;
+	   width:100%;
+   overflow:hidden;
+   
+}
+.container ul {
+   clear:left;
+   float:center;
+   list-style:none;
+   margin:0;
+   padding:0;
+   position:relative;
+   left:50%;
+   text-align:center;
+}
+.container ul li {
+   display: inline;
+   float:left;
+   list-style:none;
+   margin:0;
+   padding:20px;
+   position:relative;
+   right:50%;
+   text-align: center;
+}
+
+
+
+.image {
+  width:250px;
+  height:250px;
+  opacity: 1;
+  display: block;
+  transition: .5s ease;
+  backface-visibility: hidden;
+    object-fit:  cover;
+}
+
+
+.middle {
+  transition: .5s ease;
+  opacity: 0;
+  text-align: center; 
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+li:hover .image {
+  opacity: 0.3;
+}
+
+li:hover .middle {
+  opacity: 1;
+}
+
+.text {
+  color: white;
+  font-size: 16px;font-family: "Poiret One";
+  background-color:  #7B9466;
+  padding: 8px;
+  width: 100%;
+
+}
+
+table{
+  width:80%;
+}
+.table{
+position:relative;}
+
+th{
+  text-decoration: underline;
+  text-align: left;
+   font-family: 'Poiret One'; 
+  font-size: 1.5em;
+  font-weight: bolder;
+    padding-bottom: 1.5em;
+}
+.product{
+  word-wrap: break-word;
+  font-family: 'Poiret One'; 
+  font-size: 1.5em;
+   padding-bottom: 1.5em;
+}
