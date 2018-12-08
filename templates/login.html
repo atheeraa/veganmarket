@@ -24,7 +24,7 @@
 	<div id="signinButton">
 		<span class="g-signin"
          data-scope="openid email" 
-         data-clientid="537674795234-ull87jp23s4popjti4oblvvfk5grsieb.apps.googleusercontent.com"
+         data-clientid="810838716985-9mvbbrrsb7c46c0ke8u5dl8mkp0nan48.apps.googleusercontent.com"
           data-redirecturi="postmessage"
 			data-accesstype="offline"
              data-cookiepolicy="single_host_origin"
@@ -56,7 +56,7 @@ function signInCallback(authResult) {
         if (result) {
           $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
          setTimeout(function() {
-          window.location.href = "/veganmarket/";
+          window.location.href = '/veganmarket';
          }, 4000);
           
       } else if (authResult['error']) {
