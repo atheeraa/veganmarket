@@ -42,8 +42,8 @@ def gconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     # Obtain authorization code
-    code = request.data
-
+    request.get_data()
+    code = request.data.decode('utf-8')
     try:
         # Upgrade the authorization code into a credentials object
         oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
@@ -102,10 +102,11 @@ def gconnect():
 
     data = answer.json()
 
-    login_session['username'] = data['name']
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
-
+    login_session['username'] = data["name"]
+    login_session['provider'] = 'google'
+    
     output = ''
     output += '<h1>Welcome, '
     output += login_session['username']
@@ -127,18 +128,14 @@ def gdisconnect():
         return response
     print 'In gdisconnect access token is %s', access_token
     print 'User name is: '
-    print login_session['username']
+   
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     print 'result is '
     print result
     if result['status'] == '200':
-        del login_session['access_token']
-        del login_session['gplus_id']
-        del login_session['username']
-        del login_session['email']
-        del login_session['picture']
+    
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
@@ -146,9 +143,27 @@ def gdisconnect():
         response = make_response(json.dumps('Failed to revoke token for given user.', 400))
         response.headers['Content-Type'] = 'application/json'
         return response
+        
 
 
 
+@app.route('/disconnect')
+def disconnect():
+    if 'provider' in login_session:
+        if login_session['provider'] == 'google':
+            gdisconnect()
+            del login_session['gplus_id']
+            del login_session['access_token']
+            del login_session['username']
+            del login_session['email']
+            del login_session['picture']
+            del login_session['provider']
+       
+        flash("You have successfully been logged out.")
+        return redirect(url_for('showDepartments'))
+    else:
+        flash("You were not logged in")
+        return redirect(url_for('showDepartments'))
 
 # JSON APIs to view a department Information
 @app.route('/departments/<int:department_id>/items/JSON')
@@ -169,8 +184,10 @@ def itemsJSON(department_id, item_id):
 def departmentsJSON():
     departments = session.query(Department).all()
     return jsonify(departments=[r.serialize for r in departments])
-
-
+# Help users to use API 
+@app.route('/api')
+def returnapis():
+   return render_template('api.html')
 # Show all departments
 @app.route('/')
 @app.route('/veganmarket/')
@@ -206,6 +223,8 @@ def newDepartment():
 @app.route('/departments/<int:department_id>/edit/', methods=['GET', 'POST'])
 def editDepartment(department_id):
     editedDepartment = session.query(Department).filter_by(id=department_id).one()
+    if 'username' not in login_session:
+        return redirect('/login')
     if request.method == 'POST':
             editedDepartment.name = request.form['name']
             editedDepartment.image=request.form['image']
@@ -230,6 +249,8 @@ def showItems(department_id):
 def deleteDepartment(department_id):
     unwantedDepartment = session.query(
         Department).filter_by(id=department_id).one()
+    if 'username' not in login_session:
+        return redirect('/login')
     if request.method == 'POST':
         try:
             session.delete(unwantedDepartment)
@@ -248,6 +269,8 @@ def deleteDepartment(department_id):
 #create new items in departments
 @app.route('/departments/<int:department_id>/new/', methods=['GET', 'POST'])
 def newItem(department_id):
+    if 'username' not in login_session:
+        return redirect('/login')
     if request.method == 'POST':
         newItem = Item(name=request.form['name'],
         description=request.form['description'], 
@@ -266,6 +289,8 @@ def newItem(department_id):
 @app.route('/department/<int:department_id>/items/<int:item_id>/edit',
            methods=['GET', 'POST'])
 def editItem(department_id, item_id):
+    if 'username' not in login_session:
+        return redirect('/login')
     editedItem = session.query(Item).filter_by(id=item_id).one()
     if request.method == 'POST':
         if request.form['name']:
@@ -288,6 +313,8 @@ def editItem(department_id, item_id):
 @app.route('/department/<int:department_id>/items/<int:item_id>/delete',
            methods=['GET', 'POST'])
 def deleteItem(department_id, item_id):
+    if 'username' not in login_session:
+        return redirect('/login')
     itemToDelete = session.query(Item).filter_by(id=item_id).one()
     if request.method == 'POST':
         session.delete(itemToDelete)

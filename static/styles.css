@@ -7,7 +7,7 @@ font-size: 3.0em;
 
 p               {font-size: 1em; font-weight: bold;}
 
-a {text-decoration: none; color:#FFFFCC; font-size: .75em;}
+a {text-decoration: none; color:#5A6C4B; font-size: .75em;}
 
 .bg{
     width:100%;
@@ -32,7 +32,10 @@ a {text-decoration: none; color:#FFFFCC; font-size: .75em;}
 
 .price {text-align: right; width:50%; float: right; }
 
-.flash          { background: #cee5F5; }
+.flash          { 
+  color: #5A6C4B; font-family: 'Poiret One'; 
+  font-size: 1.5em;
+   padding-bottom: 1.5em; }
 
 .back {
     opacity: 0.5;
@@ -49,6 +52,7 @@ a {text-decoration: none; color:#FFFFCC; font-size: .75em;}
   border-top: 2px solid #7B9466;
 	   width:100%;
    overflow:hidden;
+
    
 }
 .container ul {

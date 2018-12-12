@@ -1,0 +1,31 @@
+<html>
+
+<head>
+	<link href='https://fonts.googleapis.com/css?family=Poiret One' rel='stylesheet'>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+
+</head>
+
+<body>
+	<img src="/static/bg.jpg" class="bg">
+	<a href="{{url_for('showDepartments')}}">
+		<img src="{{ url_for('static', filename='back.png') }}" height="80px" width=80px class="back">
+	</a>
+	<div class='header'>
+		<h1>API documentation </h1>
+	</div>
+    <div class="product">
+
+		<p> JSON for all the departments : '/departments/JSON'
+		</p>
+		<p>
+			JSON for a specific item, replace departmetent_id and item_id with valid ids: '/departments/ department_id/items/ item_id/JSON'
+		</p>
+
+		<p> JSON for a specific department, replace department_id with a valid id: '/departments/department_id/items/JSON'
+		</p>
+
+	</div>
+</body>
+
+</html>
