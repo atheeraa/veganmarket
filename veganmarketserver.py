@@ -29,6 +29,7 @@ session = DBSession()
 # Create anti-forgery state token
 @app.route('/login')
 def showLogin():
+    "Login page"
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
@@ -36,6 +37,7 @@ def showLogin():
      
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+    "Login using Google provider"
     # Validate state token
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
@@ -120,6 +122,7 @@ def gconnect():
 
 @app.route('/gdisconnect')
 def gdisconnect():
+    "Disconnect from Google provider"
     access_token = login_session.get('access_token')
     if access_token is None:
         print 'Access Token is None'
@@ -149,6 +152,7 @@ def gdisconnect():
 
 @app.route('/disconnect')
 def disconnect():
+    "Logout of the server, delete user login session"
     if 'provider' in login_session:
         if login_session['provider'] == 'google':
             gdisconnect()
@@ -168,6 +172,7 @@ def disconnect():
 # JSON APIs to view a department Information
 @app.route('/departments/<int:department_id>/items/JSON')
 def departmentJSON(department_id):
+    "department API JSON "
     department = session.query(Department).filter_by(id=department_id).one()
     items = session.query(Item).filter_by(
         department_id=department_id).all()
@@ -176,22 +181,26 @@ def departmentJSON(department_id):
 #JSON for item
 @app.route('/departments/<int:department_id>/items/<int:item_id>/JSON')
 def itemsJSON(department_id, item_id):
+    "Item API JSON"
     item = session.query(Item).filter_by(id=item_id).one()
     return jsonify(item=item.serialize)
 
 #JSON for all departments 
 @app.route('/departments/JSON')
 def departmentsJSON():
+    "All departments JSON"
     departments = session.query(Department).all()
     return jsonify(departments=[r.serialize for r in departments])
 # Help users to use API 
 @app.route('/api')
 def returnapis():
+   "Render APIs page"
    return render_template('api.html')
 # Show all departments
 @app.route('/')
 @app.route('/veganmarket/')
 def showDepartments():
+    "show all departments"
     departments = session.query(Department).all()
     return render_template('departments.html', departments=departments)
 
@@ -199,6 +208,7 @@ def showDepartments():
 # Create a new department
 @app.route('/departments/new/', methods=['GET', 'POST'])
 def newDepartment():
+    "Create a new department, if logged in"
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
@@ -222,6 +232,7 @@ def newDepartment():
 # Edit a department
 @app.route('/departments/<int:department_id>/edit/', methods=['GET', 'POST'])
 def editDepartment(department_id):
+    "Edit a departments, if authorized"
     editedDepartment = session.query(Department).filter_by(id=department_id).one()
     if 'username' not in login_session:
         return redirect('/login')
@@ -238,6 +249,7 @@ def editDepartment(department_id):
 @app.route('/departments/<int:department_id>/')
 @app.route('/departments/<int:departments>/items/')
 def showItems(department_id):
+    "Show items in a department"
     department = session.query(Department).filter_by(id=department_id).one()
     items = session.query(Item).filter_by(
         department_id=department_id).all()
@@ -247,6 +259,7 @@ def showItems(department_id):
 #Delete department
 @app.route('/departments/<int:department_id>/delete/', methods=['GET', 'POST'])
 def deleteDepartment(department_id):
+    "Delete a department if authorized"
     unwantedDepartment = session.query(
         Department).filter_by(id=department_id).one()
     if 'username' not in login_session:
@@ -269,6 +282,7 @@ def deleteDepartment(department_id):
 #create new items in departments
 @app.route('/departments/<int:department_id>/new/', methods=['GET', 'POST'])
 def newItem(department_id):
+    "create a new item in a department, if logged in"
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
@@ -289,6 +303,7 @@ def newItem(department_id):
 @app.route('/department/<int:department_id>/items/<int:item_id>/edit',
            methods=['GET', 'POST'])
 def editItem(department_id, item_id):
+    "Edit an item in a department if authorized"
     if 'username' not in login_session:
         return redirect('/login')
     editedItem = session.query(Item).filter_by(id=item_id).one()
@@ -313,6 +328,7 @@ def editItem(department_id, item_id):
 @app.route('/department/<int:department_id>/items/<int:item_id>/delete',
            methods=['GET', 'POST'])
 def deleteItem(department_id, item_id):
+    "delete an item in a department, if authorized"
     if 'username' not in login_session:
         return redirect('/login')
     itemToDelete = session.query(Item).filter_by(id=item_id).one()

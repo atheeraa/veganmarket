@@ -3,7 +3,7 @@
 			{%if 'username' not in session %}
 			<a  style= 'padding-left:1em;    font-weight: bold; '  href="{{url_for('showLogin')}}">Login </a>
 			{% else %}
-			<a style= 'padding-left:1em;    font-weight: bold; ' href="{{url_for('disconnect')}}">Logout  {{username}}</a>
+			<a style= 'padding-left:1em;    font-weight: bold; ' href="{{url_for('disconnect')}}">Logout  {{session.username}}</a>
 			{% endif %}
 		    <a style= 'padding-left:1em;    font-weight: bold; ' href="{{url_for('returnapis')}}"> API </a>
 	</div>
