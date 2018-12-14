@@ -125,9 +125,11 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    flash("you are now logged in as %s" % login_session['username'])
+    output += '" style = "width: 150px; height: 150px;"' 
+    flash("You are now logged in as %s" % login_session['username'])
     print "done!"
     return output
+
 
 def createUser(login_session):
     newUser = User(name=login_session['username'], email=login_session[
@@ -164,8 +166,9 @@ def gdisconnect():
         return response
     print 'In gdisconnect access token is %s', access_token
     print 'User name is: '
+    token = login_session['access_token']
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % token
 
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s'% login_session['access_token']
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     print 'result is '
@@ -259,7 +262,8 @@ def newDepartment():
         return redirect('/login')
     if request.method == 'POST':
         newDepartment = Department(
-            name=request.form['name'], image=request.form['image'], user_id=login_session['user_id'])
+            name=request.form['name'], image=request.form['image'],
+            user_id=login_session['user_id'])
         try:
             session.add(newDepartment)
             flash('Department %s added successfully ' % newDepartment.name)
@@ -285,7 +289,10 @@ def editDepartment(department_id):
 
         return redirect('/login')
     if editedDepartment.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to edit this department. Please create your own department in order to edit.');}</script><body onload='myFunction()'>"
+        return """<script>function myFunction()
+        {alert('You are not authorized to edit this department.
+        Please create your own department in order to edit.');}
+        </script><body onload='myFunction()'>"""
         return redirect('/login')
     if request.method == 'POST':
 
@@ -321,7 +328,10 @@ def deleteDepartment(department_id):
     if 'username' not in login_session:
         return redirect('/login')
     if unwantedDepartment.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to delete this department. Please create your own department in order to delete.');}</script><body onload='myFunction()'>"
+        return """<script>function myFunction()
+        {alert('You are not authorized to delete this department.
+        Please create your own department in order to delete.');}
+        </script><body onload='myFunction()'>"""
     if request.method == 'POST':
         try:
             session.delete(unwantedDepartment)
@@ -347,9 +357,12 @@ def newItem(department_id):
     "create a new item in a department, if logged in"
     if 'username' not in login_session:
         return redirect('/login')
-    department = session.query(Department).filter_by(id=department_id).one() 
+    department = session.query(Department).filter_by(id=department_id).one()
     if login_session['user_id'] != Department.user_id:
-        return "<script>function myFunction() {alert('You are not authorized to add items to this department. Please create your own Department in order to add items.');}</script><body onload='myFunction()'>"
+        return """<script>function myFunction()
+        {alert('You are not authorized to add items to this department.
+        Please create your own Department in order to add items.');}
+        </script><body onload='myFunction()'>"""
     if request.method == 'POST':
         newItem = Item(name=request.form['name'],
                        description=request.form['description'],
@@ -359,7 +372,7 @@ def newItem(department_id):
         session.add(newItem)
         session.commit()
         flash(' %s Successfully Created' % (newItem.name))
-        
+
         return redirect(url_for('showItems', department_id=department_id))
     else:
         return render_template('newItem.html', department_id=department_id)
@@ -377,7 +390,10 @@ def editItem(department_id, item_id):
     department = session.query(Department).filter_by(id=department_id).one()
     editedItem = session.query(Item).filter_by(id=item_id).one()
     if login_session['user_id'] != department.user_id:
-        return "<script>function myFunction() {alert('You are not authorized to edit items to this Department. Please create your own Department in order to edit items.');}</script><body onload='myFunction()'>"
+        return """<script>function myFunction()
+        {alert('You are not authorized to edit items to this Department.
+        Please create your own Department in order to edit items.');}
+        </script><body onload='myFunction()'>"""
     if request.method == 'POST':
         if request.form['name']:
             editedItem.name = request.form['name']
@@ -407,7 +423,10 @@ def deleteItem(department_id, item_id):
     department = session.query(Department).filter_by(id=department_id).one()
     itemToDelete = session.query(Item).filter_by(id=item_id).one()
     if login_session['user_id'] != department.user_id:
-        return "<script>function myFunction() {alert('You are not authorized to delete items to this Department. Please create your own Department in order to delete items.');}</script><body onload='myFunction()'>"
+        return """<script>function myFunction()
+        {alert('You are not authorized to delete items to this Department.
+        Please create your own Department in order to delete items.'); }
+        </script><body onload='myFunction()'>"""
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
