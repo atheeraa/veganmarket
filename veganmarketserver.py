@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
-from sqlalchemy import create_engine 
+from flask import Flask, render_template, request
+from flask import redirect, jsonify, url_for, flash
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, Department, Item
+from database_setup import Base, Department, Item, User
 from flask import send_from_directory
 from flask import session as login_session
 import random
@@ -20,13 +21,17 @@ APPLICATION_NAME = "Vegan Market"
 
 
 app = Flask(__name__)
-engine = create_engine('sqlite:///veganmarket.db', connect_args={'check_same_thread': False})
+engine = create_engine('sqlite:///veganmarket.db',
+                       connect_args={'check_same_thread': False})
+
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 # Create anti-forgery state token
+
+
 @app.route('/login')
 def showLogin():
     "Login page"
@@ -34,7 +39,8 @@ def showLogin():
                     for x in xrange(32))
     login_session['state'] = state
     return render_template('login.html', STATE=state)
-     
+
+
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     "Login using Google provider"
@@ -88,8 +94,8 @@ def gconnect():
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(json.dumps(
+            'Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -108,17 +114,42 @@ def gconnect():
     login_session['email'] = data['email']
     login_session['username'] = data["name"]
     login_session['provider'] = 'google'
-    
+    user_id = getUserID(data["email"])
+    if not user_id:
+        user_id = createUser(login_session)
+    login_session['user_id'] = user_id
+    print user_id
     output = ''
     output += '<h1>Welcome, '
     output += login_session['username']
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash("you are now logged in as %s" % login_session['username'])
     print "done!"
     return output
+
+def createUser(login_session):
+    newUser = User(name=login_session['username'], email=login_session[
+                   'email'], picture=login_session['picture'])
+    session.add(newUser)
+    session.commit()
+    user = session.query(User).filter_by(email=login_session['email']).one()
+    return user.id
+
+
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(id=user_id).one()
+    return user
+
+
+def getUserID(email):
+    try:
+        user = session.query(User).filter_by(email=email).one()
+        return user.id
+    except:
+        return None
+
 
 @app.route('/gdisconnect')
 def gdisconnect():
@@ -126,28 +157,31 @@ def gdisconnect():
     access_token = login_session.get('access_token')
     if access_token is None:
         print 'Access Token is None'
-        response = make_response(json.dumps('Current user not connected.'), 401)
+        response = make_response(json.dumps(
+            'Current user not connected.'), 401)
+
         response.headers['Content-Type'] = 'application/json'
         return response
     print 'In gdisconnect access token is %s', access_token
     print 'User name is: '
-   
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
+
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s'% login_session['access_token']
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     print 'result is '
     print result
     if result['status'] == '200':
-    
+
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
     else:
-        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
-        response.headers['Content-Type'] = 'application/json'
-        return response
-        
+        response = make_response(json.dumps(
+            'Failed to revoke token for given user.', 400))
 
+        response.headers['Content-Type'] = 'application/json'
+
+        return response
 
 
 @app.route('/disconnect')
@@ -162,7 +196,7 @@ def disconnect():
             del login_session['email']
             del login_session['picture']
             del login_session['provider']
-       
+
         flash("You have successfully been logged out.")
         return redirect(url_for('showDepartments'))
     else:
@@ -170,6 +204,8 @@ def disconnect():
         return redirect(url_for('showDepartments'))
 
 # JSON APIs to view a department Information
+
+
 @app.route('/departments/<int:department_id>/items/JSON')
 def departmentJSON(department_id):
     "department API JSON "
@@ -178,25 +214,35 @@ def departmentJSON(department_id):
         department_id=department_id).all()
     return jsonify(Item=[i.serialize for i in items])
 
-#JSON for item
+# JSON for item
+
+
 @app.route('/departments/<int:department_id>/items/<int:item_id>/JSON')
 def itemsJSON(department_id, item_id):
     "Item API JSON"
     item = session.query(Item).filter_by(id=item_id).one()
     return jsonify(item=item.serialize)
 
-#JSON for all departments 
+# JSON for all departments
+
+
 @app.route('/departments/JSON')
 def departmentsJSON():
     "All departments JSON"
     departments = session.query(Department).all()
     return jsonify(departments=[r.serialize for r in departments])
-# Help users to use API 
+# Help users to use API
+
+
 @app.route('/api')
 def returnapis():
-   "Render APIs page"
-   return render_template('api.html')
+    "Render APIs page"
+
+    return render_template('api.html')
+
 # Show all departments
+
+
 @app.route('/')
 @app.route('/veganmarket/')
 def showDepartments():
@@ -212,7 +258,8 @@ def newDepartment():
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
-        newDepartment = Department(name=request.form['name'], image=request.form['image'])
+        newDepartment = Department(
+            name=request.form['name'], image=request.form['image'], user_id=login_session['user_id'])
         try:
             session.add(newDepartment)
             flash('Department %s added successfully ' % newDepartment.name)
@@ -221,31 +268,39 @@ def newDepartment():
             session.rollback()
             raise
         finally:
-            session.close() 
+            session.close()
         return redirect(url_for('showDepartments'))
     else:
         return render_template('newDepartment.html')
-
-
 
 
 # Edit a department
 @app.route('/departments/<int:department_id>/edit/', methods=['GET', 'POST'])
 def editDepartment(department_id):
     "Edit a departments, if authorized"
-    editedDepartment = session.query(Department).filter_by(id=department_id).one()
+    editedDepartment = session.query(
+        Department).filter_by(id=department_id).one()
+
     if 'username' not in login_session:
+
+        return redirect('/login')
+    if editedDepartment.user_id != login_session['user_id']:
+        return "<script>function myFunction() {alert('You are not authorized to edit this department. Please create your own department in order to edit.');}</script><body onload='myFunction()'>"
         return redirect('/login')
     if request.method == 'POST':
-            editedDepartment.name = request.form['name']
-            editedDepartment.image=request.form['image']
-            return redirect(url_for('showDepartments'))
+
+        editedDepartment.name = request.form['name']
+
+        editedDepartment.image = request.form['image']
+        flash('Department Successfully Edited %s' % editedDepartment.name)
+        return redirect(url_for('showDepartments'))
     else:
         return render_template(
             'editDepartment.html', department=editedDepartment)
 
 
-#show items in a department
+# show items in a department
+
 @app.route('/departments/<int:department_id>/')
 @app.route('/departments/<int:departments>/items/')
 def showItems(department_id):
@@ -254,9 +309,10 @@ def showItems(department_id):
     items = session.query(Item).filter_by(
         department_id=department_id).all()
     return render_template('items.html', items=items, department=department)
-  
 
-#Delete department
+
+# Delete department
+
 @app.route('/departments/<int:department_id>/delete/', methods=['GET', 'POST'])
 def deleteDepartment(department_id):
     "Delete a department if authorized"
@@ -264,39 +320,51 @@ def deleteDepartment(department_id):
         Department).filter_by(id=department_id).one()
     if 'username' not in login_session:
         return redirect('/login')
+    if unwantedDepartment.user_id != login_session['user_id']:
+        return "<script>function myFunction() {alert('You are not authorized to delete this department. Please create your own department in order to delete.');}</script><body onload='myFunction()'>"
     if request.method == 'POST':
         try:
             session.delete(unwantedDepartment)
+            flash('%s Successfully Deleted' % unwantedDepartment.name)
             session.commit()
         except:
             session.rollback()
             raise
         finally:
-            session.close() 
+            session.close()
         return redirect(
             url_for('showDepartments', department_id=department_id))
     else:
         return render_template(
             'deleteDepartment.html', department=unwantedDepartment)
-   
-#create new items in departments
+
+
+# create new items in departments
+
+
 @app.route('/departments/<int:department_id>/new/', methods=['GET', 'POST'])
 def newItem(department_id):
     "create a new item in a department, if logged in"
     if 'username' not in login_session:
         return redirect('/login')
+    department = session.query(Department).filter_by(id=department_id).one() 
+    if login_session['user_id'] != Department.user_id:
+        return "<script>function myFunction() {alert('You are not authorized to add items to this department. Please create your own Department in order to add items.');}</script><body onload='myFunction()'>"
     if request.method == 'POST':
         newItem = Item(name=request.form['name'],
-        description=request.form['description'], 
-        price=request.form['price'], department_id=department_id)
+                       description=request.form['description'],
+                       price=request.form['price'],
+                       department_id=department_id)
+
         session.add(newItem)
         session.commit()
-
+        flash(' %s Successfully Created' % (newItem.name))
+        
         return redirect(url_for('showItems', department_id=department_id))
     else:
         return render_template('newItem.html', department_id=department_id)
 
- 
+
 # Edit an item
 
 
@@ -306,7 +374,10 @@ def editItem(department_id, item_id):
     "Edit an item in a department if authorized"
     if 'username' not in login_session:
         return redirect('/login')
+    department = session.query(Department).filter_by(id=department_id).one()
     editedItem = session.query(Item).filter_by(id=item_id).one()
+    if login_session['user_id'] != department.user_id:
+        return "<script>function myFunction() {alert('You are not authorized to edit items to this Department. Please create your own Department in order to edit items.');}</script><body onload='myFunction()'>"
     if request.method == 'POST':
         if request.form['name']:
             editedItem.name = request.form['name']
@@ -316,11 +387,13 @@ def editItem(department_id, item_id):
             editedItem.price = request.form['price']
         session.add(editedItem)
         session.commit()
+        flash('Menu Item Successfully Edited')
         return redirect(url_for('showItems', department_id=department_id))
     else:
 
         return render_template(
-            'editItem.html', department_id=department_id, item_id=item_id, item=editedItem)
+            'editItem.html', department_id=department_id,
+            item_id=item_id, item=editedItem)
 
 # Delete an item
 
@@ -331,15 +404,17 @@ def deleteItem(department_id, item_id):
     "delete an item in a department, if authorized"
     if 'username' not in login_session:
         return redirect('/login')
+    department = session.query(Department).filter_by(id=department_id).one()
     itemToDelete = session.query(Item).filter_by(id=item_id).one()
+    if login_session['user_id'] != department.user_id:
+        return "<script>function myFunction() {alert('You are not authorized to delete items to this Department. Please create your own Department in order to delete items.');}</script><body onload='myFunction()'>"
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
+        flash('Menu Item Successfully Deleted')
         return redirect(url_for('showItems', department_id=department_id))
     else:
         return render_template('deleteItem.html', item=itemToDelete)
-   
-
 
 
 if __name__ == '__main__':
